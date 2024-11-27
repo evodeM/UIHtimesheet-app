@@ -49,10 +49,10 @@ function App() {
     if (accessToken) {
       setLoading(true);
       setError(null);
-      const service = createGoogleSheetsService(SPREADSHEET_ID);
-      service.initialize(accessToken)
+      const sheetsService = createGoogleSheetsService(accessToken, import.meta.env.VITE_SPREADSHEET_ID);
+      sheetsService.initialize()
         .then(() => {
-          setSheetsService(service);
+          setSheetsService(sheetsService);
           setLoading(false);
         })
         .catch((error) => {
@@ -79,33 +79,19 @@ function App() {
   };
 
   const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
-    console.log('Login successful, full response:', credentialResponse);
-    setLoading(true);
     try {
-      const tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file',
-        callback: (response: any) => {
-          if (response && response.access_token) {
-            console.log('Access token received:', response.access_token);
-            setAccessToken(response.access_token);
-            setLoading(false);
-          } else {
-            console.error('No access token in response');
-            setError('Kunne ikke få adgang til Google Sheets. Prøv venligst igen.');
-            setLoading(false);
-          }
-        },
-        error_callback: (error: any) => {
-          console.error('Token client error:', error);
-          setError('Der opstod en fejl under login. Prøv venligst igen.');
-          setLoading(false);
-        }
-      });
-
-      tokenClient.requestAccessToken();
+      setLoading(true);
+      setError(null);
+      const accessToken = credentialResponse.access_token;
+      setAccessToken(accessToken);
+      
+      const sheetsService = createGoogleSheetsService(accessToken, import.meta.env.VITE_SPREADSHEET_ID);
+      await sheetsService.initialize();
+      
+      setSheetsService(sheetsService);
+      setLoading(false);
     } catch (error) {
-      console.error('Error getting access token:', error);
+      console.error('Failed to initialize sheets service:', error);
       setError('Kunne ikke få adgang til Google Sheets. Prøv venligst igen.');
       setLoading(false);
     }
