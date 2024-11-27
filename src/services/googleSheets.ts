@@ -1,5 +1,3 @@
-import { TimeRegistrationData as OriginalTimeRegistrationData } from '../components/TimeRegistration';
-
 declare global {
   interface Window {
     gapi: any;
