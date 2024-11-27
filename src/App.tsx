@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { CssBaseline, Container, ThemeProvider, createTheme, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import TimeRegistration from './components/TimeRegistration';
 import { createGoogleSheetsService } from './services/googleSheets';
 import './App.css';
 
-// Dette er en placeholder - erstat med dit nye Google Sheets ID
-const SPREADSHEET_ID = '1tfuPP-QmxKOgrzeR7rxq3j_6yoPyvd6YSZ_pl2GNiOs';
+interface ExtendedCredentialResponse {
+  credential: string;
+  clientId: string;
+  select_by: string;
+  access_token: string;
+}
 
 const theme = createTheme({
   palette: {
@@ -78,7 +82,7 @@ function App() {
     }
   };
 
-  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+  const handleLoginSuccess = async (credentialResponse: ExtendedCredentialResponse) => {
     try {
       setLoading(true);
       setError(null);

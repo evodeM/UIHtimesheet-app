@@ -1,4 +1,4 @@
-import { TimeRegistrationData } from '../components/TimeRegistration';
+import { TimeRegistrationData as OriginalTimeRegistrationData } from '../components/TimeRegistration';
 
 declare global {
   interface Window {
@@ -14,8 +14,6 @@ interface TimeRegistrationData {
   description: string;
   type: string;
 }
-
-const SHEET_START_ROW = 10;
 
 const loadGapiClient = () => {
   return new Promise<void>((resolve, reject) => {
