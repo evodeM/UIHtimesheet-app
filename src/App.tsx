@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { CssBaseline, Container, ThemeProvider, createTheme, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import TimeRegistration from './components/TimeRegistration';
 import { createGoogleSheetsService } from './services/googleSheets';
-import './App.css';
 
 interface ExtendedCredentialResponse {
   credential: string;
