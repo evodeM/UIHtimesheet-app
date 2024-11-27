@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GoogleOAuthProvider, GoogleLogin, CredentialResponse, TokenResponse } from '@react-oauth/google';
+import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { CssBaseline, Container, ThemeProvider, createTheme, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import TimeRegistration from './components/TimeRegistration';
 import { createGoogleSheetsService } from './services/googleSheets';
@@ -87,24 +87,14 @@ function App() {
       setLoading(true);
       setError(null);
       
-      // Hent access token fra Google OAuth
-      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          code: credentialResponse.code || '',
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          grant_type: 'authorization_code',
-          redirect_uri: window.location.origin,
-        }),
-      });
-
-      const { access_token } = await tokenResponse.json();
-      setAccessToken(access_token);
+      // Brug credential direkte som access token
+      const accessToken = credentialResponse.credential;
+      if (!accessToken) {
+        throw new Error('No credential received');
+      }
       
-      const sheetsService = createGoogleSheetsService(access_token, import.meta.env.VITE_SPREADSHEET_ID);
+      setAccessToken(accessToken);
+      const sheetsService = createGoogleSheetsService(accessToken, import.meta.env.VITE_SPREADSHEET_ID);
       await sheetsService.initialize();
       
       setSheetsService(sheetsService);
