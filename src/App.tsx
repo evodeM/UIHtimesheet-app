@@ -111,10 +111,8 @@ function App() {
     }
   };
 
-  const handleLoginError = (error: any) => {
-    console.error('Login failed with error:', error);
-    setError('Login fejlede. Prøv venligst igen.');
-    setAccessToken(null);
+  const handleLoginError = () => {
+    setError('Der opstod en fejl under login. Prøv venligst igen.');
   };
 
   return (

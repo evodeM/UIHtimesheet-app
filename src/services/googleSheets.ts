@@ -7,14 +7,12 @@ declare global {
 }
 
 interface TimeRegistrationData {
-  updateMonth?: boolean;
-  month?: string;
-  date?: number;
-  startTime?: string;
-  endTime?: string;
-  teachingType?: string;
-  hours?: string;
-  description?: string;
+  month: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+  type: string;
 }
 
 const SHEET_START_ROW = 10;
@@ -39,8 +37,8 @@ const loadGapiClient = () => {
   });
 };
 
-export const createGoogleSheetsService = (spreadsheetId: string) => {
-  let accessToken: string | null = null;
+export const createGoogleSheetsService = (accessToken: string, spreadsheetId: string) => {
+  let accessTokenLocal: string | null = accessToken;
 
   const getWeekday = (date: number): string => {
     const currentDate = new Date();
@@ -49,11 +47,10 @@ export const createGoogleSheetsService = (spreadsheetId: string) => {
     return weekdays[currentDate.getDay()];
   };
 
-  const initialize = async (token: string) => {
+  const initialize = async () => {
     try {
-      accessToken = token;
       await loadGapiClient();
-      window.gapi.client.setToken({ access_token: accessToken });
+      window.gapi.client.setToken({ access_token: accessTokenLocal });
       
       // Opdater aktuel dato i F53
       const today = new Date();
@@ -82,13 +79,13 @@ export const createGoogleSheetsService = (spreadsheetId: string) => {
   };
 
   const saveTimeRegistration = async (data: TimeRegistrationData) => {
-    if (!accessToken) {
+    if (!accessTokenLocal) {
       throw new Error('Not authenticated');
     }
 
     try {
       // Hvis det er en månedsopdatering
-      if (data.updateMonth && data.month) {
+      if (data.month) {
         await window.gapi.client.sheets.spreadsheets.values.update({
           spreadsheetId,
           range: 'Ark1!B2',
@@ -101,10 +98,10 @@ export const createGoogleSheetsService = (spreadsheetId: string) => {
       }
 
       // Ellers er det en normal tidsregistrering
-      if (!data.date) return;
+      if (!data.day) return;
 
-      const weekday = getWeekday(data.date);
-      const row = 9 + data.date;
+      const weekday = getWeekday(parseInt(data.day));
+      const row = 9 + parseInt(data.day);
       const range = `Ark1!B${row}:G${row}`;
 
       await window.gapi.client.sheets.spreadsheets.values.update({
@@ -116,8 +113,8 @@ export const createGoogleSheetsService = (spreadsheetId: string) => {
             weekday,
             data.startTime,
             data.endTime,
-            data.teachingType,
-            data.hours,
+            data.type,
+            '',
             data.description
           ]]
         }
